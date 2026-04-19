@@ -24,7 +24,7 @@
     header p  { margin-top: 6px; opacity: 0.85; font-size: 0.95rem; }
 
     .container {
-      max-width: 960px;
+      max-width: 980px;
       margin: 36px auto;
       padding: 0 20px;
     }
@@ -48,18 +48,26 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
     }
 
-    .field label {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #4a5568;
-      margin-bottom: 6px;
+    .field { display: flex; flex-direction: column; }
+
+    .field .field-label {
+      font-size: 0.83rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 3px;
       text-transform: uppercase;
       letter-spacing: 0.03em;
+    }
+
+    .field .field-desc {
+      font-size: 0.78rem;
+      color: #718096;
+      margin-bottom: 8px;
+      line-height: 1.4;
     }
 
     .field input[type="number"],
@@ -69,8 +77,8 @@
       border: 1.5px solid #cbd5e0;
       border-radius: 8px;
       font-size: 0.95rem;
-      transition: border-color 0.2s;
       background: #f7fafc;
+      transition: border-color 0.2s;
     }
     .field input[type="number"]:focus,
     .field select:focus {
@@ -79,17 +87,18 @@
       background: white;
     }
 
-    /* Toggle switch for binary fields */
+    /* Toggle switch */
     .toggle-wrap {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-top: 4px;
+      margin-top: 2px;
     }
     .toggle {
       position: relative;
       width: 44px;
       height: 24px;
+      flex-shrink: 0;
     }
     .toggle input { opacity: 0; width: 0; height: 0; }
     .slider {
@@ -111,7 +120,7 @@
     }
     .toggle input:checked + .slider { background: #2b6cb0; }
     .toggle input:checked + .slider::before { transform: translateX(20px); }
-    .toggle-label { font-size: 0.9rem; color: #718096; }
+    .toggle-state { font-size: 0.85rem; font-weight: 600; color: #4a5568; min-width: 28px; }
 
     .submit-btn {
       display: block;
@@ -156,31 +165,14 @@
       color: #718096;
       margin-bottom: 8px;
     }
-    .model-card .prob {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #2d3748;
-    }
-    .model-card .verdict {
-      margin-top: 6px;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
+    .model-card .prob { font-size: 2rem; font-weight: 800; color: #2d3748; }
+    .model-card .verdict { margin-top: 6px; font-size: 0.9rem; font-weight: 600; }
     .model-card.positive .verdict { color: #e53e3e; }
     .model-card.negative .verdict { color: #38a169; }
 
     .prob-bar-wrap { margin-top: 10px; }
-    .prob-bar-bg {
-      background: #e2e8f0;
-      border-radius: 99px;
-      height: 8px;
-      overflow: hidden;
-    }
-    .prob-bar-fill {
-      height: 100%;
-      border-radius: 99px;
-      transition: width 0.8s ease;
-    }
+    .prob-bar-bg { background: #e2e8f0; border-radius: 99px; height: 8px; overflow: hidden; }
+    .prob-bar-fill { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
     .positive .prob-bar-fill { background: #fc8181; }
     .negative .prob-bar-fill { background: #68d391; }
 
@@ -194,8 +186,8 @@
     }
     .ensemble-banner.positive { background: #fff5f5; border: 2px solid #fc8181; }
     .ensemble-banner.negative { background: #f0fff4; border: 2px solid #68d391; }
-    .ensemble-banner .label   { font-size: 1rem; color: #4a5568; }
-    .ensemble-banner .value   { font-size: 1.5rem; font-weight: 800; }
+    .ensemble-banner .label  { font-size: 1rem; color: #4a5568; }
+    .ensemble-banner .value  { font-size: 1.5rem; font-weight: 800; }
     .ensemble-banner.positive .value { color: #e53e3e; }
     .ensemble-banner.negative .value { color: #38a169; }
 
@@ -236,146 +228,233 @@
 </header>
 
 <div class="container">
-
   <form id="predict-form">
 
-    <!-- Range / Numeric Features -->
+    <!-- Section 1: Measurements -->
     <div class="card">
       <h2>Health Measurements</h2>
       <div class="grid">
+
         <div class="field">
-          <label>BMI</label>
+          <span class="field-label">BMI</span>
+          <span class="field-desc">Body Mass Index</span>
           <input type="number" name="BMI" min="10" max="100" step="0.1" value="27.0" required/>
         </div>
+
         <div class="field">
-          <label>Age (1–13)</label>
-          <input type="number" name="Age" min="1" max="13" value="7" required/>
+          <span class="field-label">Age Group</span>
+          <span class="field-desc">Select your age range</span>
+          <select name="Age" required>
+            <option value="1">18 – 24</option>
+            <option value="2">25 – 29</option>
+            <option value="3">30 – 34</option>
+            <option value="4">35 – 39</option>
+            <option value="5">40 – 44</option>
+            <option value="6">45 – 49</option>
+            <option value="7" selected>50 – 54</option>
+            <option value="8">55 – 59</option>
+            <option value="9">60 – 64</option>
+            <option value="10">65 – 69</option>
+            <option value="11">70 – 74</option>
+            <option value="12">75 – 79</option>
+            <option value="13">80 or older</option>
+          </select>
         </div>
+
         <div class="field">
-          <label>General Health (1–5)</label>
-          <input type="number" name="GenHlth" min="1" max="5" value="3" required/>
+          <span class="field-label">General Health</span>
+          <span class="field-desc">How would you rate your overall health?</span>
+          <select name="GenHlth" required>
+            <option value="1">1 – Excellent</option>
+            <option value="2">2 – Very Good</option>
+            <option value="3" selected>3 – Good</option>
+            <option value="4">4 – Fair</option>
+            <option value="5">5 – Poor</option>
+          </select>
         </div>
+
         <div class="field">
-          <label>Mental Health Days (0–30)</label>
+          <span class="field-label">Mental Health Days (0–30)</span>
+          <span class="field-desc">How many days in past 30 days was your mental health (stress, depression, emotions) not good?</span>
           <input type="number" name="MentHlth" min="0" max="30" value="0" required/>
         </div>
+
         <div class="field">
-          <label>Physical Health Days (0–30)</label>
+          <span class="field-label">Physical Health Days (0–30)</span>
+          <span class="field-desc">How many days in past 30 days was your physical health (illness, injury) not good?</span>
           <input type="number" name="PhysHlth" min="0" max="30" value="0" required/>
         </div>
+
         <div class="field">
-          <label>Education (1–6)</label>
-          <input type="number" name="Education" min="1" max="6" value="5" required/>
+          <span class="field-label">Education Level</span>
+          <span class="field-desc">Highest level of education completed</span>
+          <select name="Education" required>
+            <option value="1">1 – Never attended school / Kindergarten</option>
+            <option value="2">2 – Grades 1–8 (Elementary)</option>
+            <option value="3">3 – Grades 9–11 (Some high school)</option>
+            <option value="4">4 – Grade 12 / GED (HS graduate)</option>
+            <option value="5" selected>5 – Some college / Technical school</option>
+            <option value="6">6 – College graduate (4+ years)</option>
+          </select>
         </div>
+
         <div class="field">
-          <label>Income (1–8)</label>
-          <input type="number" name="Income" min="1" max="8" value="5" required/>
+          <span class="field-label">Annual Household Income</span>
+          <span class="field-desc">Select your income range</span>
+          <select name="Income" required>
+            <option value="1">1 – Less than $10,000</option>
+            <option value="2">2 – $10,000 – $14,999</option>
+            <option value="3">3 – $15,000 – $19,999</option>
+            <option value="4">4 – $20,000 – $24,999</option>
+            <option value="5" selected>5 – $25,000 – $34,999</option>
+            <option value="6">6 – $35,000 – $49,999</option>
+            <option value="7">7 – $50,000 – $74,999</option>
+            <option value="8">8 – $75,000 or more</option>
+          </select>
         </div>
+
       </div>
     </div>
 
-    <!-- Binary Features -->
+    <!-- Section 2: Medical Conditions -->
     <div class="card">
-      <h2>Medical History</h2>
+      <h2>Medical Conditions</h2>
       <div class="grid">
+
         <div class="field">
-          <label>High Blood Pressure</label>
+          <span class="field-label">High Blood Pressure</span>
+          <span class="field-desc">Ever told by a doctor you have high blood pressure?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="HighBP" value="1"/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="HighBP"/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-HighBP">No</span>
           </div>
         </div>
+
         <div class="field">
-          <label>High Cholesterol</label>
+          <span class="field-label">High Cholesterol</span>
+          <span class="field-desc">Ever told by a doctor you have high cholesterol?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="HighChol" value="1"/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="HighChol"/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-HighChol">No</span>
           </div>
         </div>
+
         <div class="field">
-          <label>Cholesterol Check</label>
+          <span class="field-label">Cholesterol Check</span>
+          <span class="field-desc">Cholesterol check within the past 5 years?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="CholCheck" value="1" checked/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="CholCheck" checked/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-CholCheck">Yes</span>
           </div>
         </div>
+
         <div class="field">
-          <label>Smoker</label>
+          <span class="field-label">Stroke</span>
+          <span class="field-desc">(Ever told) you had a stroke?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="Smoker" value="1"/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="Stroke"/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-Stroke">No</span>
           </div>
         </div>
+
         <div class="field">
-          <label>Stroke</label>
+          <span class="field-label">Heart Disease / Attack</span>
+          <span class="field-desc">Coronary heart disease (CHD) or myocardial infarction (MI)?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="Stroke" value="1"/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="HeartDiseaseorAttack"/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-HeartDiseaseorAttack">No</span>
           </div>
         </div>
+
         <div class="field">
-          <label>Heart Disease / Attack</label>
+          <span class="field-label">Difficulty Walking</span>
+          <span class="field-desc">Serious difficulty walking or climbing stairs?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="HeartDiseaseorAttack" value="1"/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="DiffWalk"/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-DiffWalk">No</span>
           </div>
         </div>
+
+      </div>
+    </div>
+
+    <!-- Section 3: Lifestyle -->
+    <div class="card">
+      <h2>Lifestyle &amp; Demographics</h2>
+      <div class="grid">
+
         <div class="field">
-          <label>Physical Activity</label>
+          <span class="field-label">Smoker</span>
+          <span class="field-desc">Smoked at least 100 cigarettes (5 packs) in your entire life?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="PhysActivity" value="1" checked/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="Smoker"/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-Smoker">No</span>
           </div>
         </div>
+
         <div class="field">
-          <label>Eats Fruits</label>
+          <span class="field-label">Physical Activity</span>
+          <span class="field-desc">Physical activity in past 30 days (not including job)?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="Fruits" value="1" checked/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="PhysActivity" checked/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-PhysActivity">Yes</span>
           </div>
         </div>
+
         <div class="field">
-          <label>Eats Vegetables</label>
+          <span class="field-label">Eats Fruits</span>
+          <span class="field-desc">Consume fruit 1 or more times per day?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="Veggies" value="1" checked/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="Fruits" checked/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-Fruits">Yes</span>
           </div>
         </div>
+
         <div class="field">
-          <label>Heavy Alcohol</label>
+          <span class="field-label">Eats Vegetables</span>
+          <span class="field-desc">Consume vegetables 1 or more times per day?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="HvyAlcoholConsump" value="1"/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="Veggies" checked/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-Veggies">Yes</span>
           </div>
         </div>
+
         <div class="field">
-          <label>Any Healthcare</label>
+          <span class="field-label">Heavy Alcohol Consumption</span>
+          <span class="field-desc">Adult men &gt;14 drinks/week or women &gt;7 drinks/week?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="AnyHealthcare" value="1" checked/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="HvyAlcoholConsump"/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-HvyAlcoholConsump">No</span>
           </div>
         </div>
+
         <div class="field">
-          <label>No Doc (Cost)</label>
+          <span class="field-label">Any Healthcare Coverage</span>
+          <span class="field-desc">Have any kind of health care coverage or insurance?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="NoDocbcCost" value="1"/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="AnyHealthcare" checked/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-AnyHealthcare">Yes</span>
           </div>
         </div>
+
         <div class="field">
-          <label>Difficulty Walking</label>
+          <span class="field-label">No Doctor Due to Cost</span>
+          <span class="field-desc">Needed to see a doctor but couldn't due to cost in past 12 months?</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="DiffWalk" value="1"/><span class="slider"></span></label>
-            <span class="toggle-label">Yes / No</span>
+            <label class="toggle"><input type="checkbox" name="NoDocbcCost"/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-NoDocbcCost">No</span>
           </div>
         </div>
+
         <div class="field">
-          <label>Sex (Male = 1)</label>
+          <span class="field-label">Sex</span>
+          <span class="field-desc">Biological sex assigned at birth</span>
           <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" name="Sex" value="1"/><span class="slider"></span></label>
-            <span class="toggle-label">Male / Female</span>
+            <label class="toggle"><input type="checkbox" name="Sex"/><span class="slider"></span></label>
+            <span class="toggle-state" id="lbl-Sex">Female</span>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -393,6 +472,24 @@
 <footer>CDC Diabetes Health Indicators Dataset &mdash; For educational purposes only</footer>
 
 <script>
+  // Live Yes/No label on toggles
+  const toggleLabels = {
+    Sex: ['Female', 'Male']
+  };
+
+  document.querySelectorAll('.toggle input[type="checkbox"]').forEach(cb => {
+    const name  = cb.name;
+    const label = document.getElementById('lbl-' + name);
+    if (!label) return;
+    cb.addEventListener('change', () => {
+      if (toggleLabels[name]) {
+        label.textContent = cb.checked ? toggleLabels[name][1] : toggleLabels[name][0];
+      } else {
+        label.textContent = cb.checked ? 'Yes' : 'No';
+      }
+    });
+  });
+
   document.getElementById('predict-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -403,12 +500,13 @@
     const form = e.target;
     const data = {};
 
-    // Numeric fields
-    ['BMI','Age','GenHlth','MentHlth','PhysHlth','Education','Income'].forEach(name => {
+    ['BMI','MentHlth','PhysHlth'].forEach(name => {
       data[name] = parseFloat(form.querySelector(`[name="${name}"]`).value);
     });
+    ['Age','GenHlth','Education','Income'].forEach(name => {
+      data[name] = parseInt(form.querySelector(`[name="${name}"]`).value);
+    });
 
-    // Binary fields (checkbox = 1 if checked, else 0)
     ['HighBP','HighChol','CholCheck','Smoker','Stroke','HeartDiseaseorAttack',
      'PhysActivity','Fruits','Veggies','HvyAlcoholConsump','AnyHealthcare',
      'NoDocbcCost','DiffWalk','Sex'].forEach(name => {
@@ -422,12 +520,7 @@
         body: JSON.stringify(data)
       });
       const json = await res.json();
-
-      if (json.error) {
-        showError(json.error);
-      } else {
-        showResults(json);
-      }
+      json.error ? showError(json.error) : showResults(json);
     } catch (err) {
       showError('Could not reach the server. Is Flask running?');
     }
@@ -445,21 +538,13 @@
   }
 
   function showResults(json) {
-    const modelNames = {
-      xgboost: 'XGBoost',
-      catboost: 'CatBoost',
-      neural_network: 'Neural Network',
-      ensemble: 'Ensemble'
-    };
-
-    const ensemble = json.ensemble;
+    const modelNames = { xgboost: 'XGBoost', catboost: 'CatBoost', neural_network: 'Neural Network', ensemble: 'Ensemble' };
+    const ensemble   = json.ensemble;
     const isPositive = ensemble.prediction === 1;
-    const ensembleClass = isPositive ? 'positive' : 'negative';
-    const ensembleVerdict = isPositive ? '⚠️ High Risk' : '✅ Low Risk';
 
     let modelsHtml = '';
     ['xgboost', 'catboost', 'neural_network'].forEach(key => {
-      const m = json[key];
+      const m   = json[key];
       const cls = m.prediction === 1 ? 'positive' : 'negative';
       const pct = (m.probability * 100).toFixed(1);
       modelsHtml += `
@@ -468,23 +553,23 @@
           <div class="prob">${pct}%</div>
           <div class="verdict">${m.prediction === 1 ? '⚠️ At Risk' : '✅ Low Risk'}</div>
           <div class="prob-bar-wrap">
-            <div class="prob-bar-bg">
-              <div class="prob-bar-fill" style="width:${pct}%"></div>
-            </div>
+            <div class="prob-bar-bg"><div class="prob-bar-fill" style="width:${pct}%"></div></div>
           </div>
         </div>`;
     });
 
     const ensemblePct = (ensemble.probability * 100).toFixed(1);
+    const cls         = isPositive ? 'positive' : 'negative';
+    const verdict     = isPositive ? '⚠️ High Risk' : '✅ Low Risk';
 
     document.getElementById('results-content').innerHTML = `
       <div class="model-grid">${modelsHtml}</div>
-      <div class="ensemble-banner ${ensembleClass}">
+      <div class="ensemble-banner ${cls}">
         <div>
           <div class="label">Ensemble Prediction (Weighted Average)</div>
           <div style="font-size:0.85rem;color:#718096;margin-top:2px;">XGBoost 35% · CatBoost 40% · Neural Network 25%</div>
         </div>
-        <div class="value">${ensembleVerdict} &nbsp; ${ensemblePct}%</div>
+        <div class="value">${verdict} &nbsp; ${ensemblePct}%</div>
       </div>`;
 
     const el = document.getElementById('results');

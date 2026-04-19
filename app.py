@@ -36,13 +36,13 @@ def engineer_features(data: dict) -> pd.DataFrame:
     return df
 
 def predict(df: pd.DataFrame, model_name: str) -> dict:
+    X = preprocessor.transform(df)
     if model_name in ('xgboost', 'ensemble'):
-        prob_xgb = float(xgb_model.predict_proba(df)[:, 1][0])
+        prob_xgb = float(xgb_model.predict_proba(X)[:, 1][0])
     if model_name in ('catboost', 'ensemble'):
-        prob_cat = float(catboost_model.predict_proba(df)[:, 1][0])
+        prob_cat = float(catboost_model.predict_proba(X)[:, 1][0])
     if model_name in ('neural_network', 'ensemble'):
-        X_scaled = preprocessor.transform(df)
-        prob_mlp = float(mlp_model.predict_proba(X_scaled)[:, 1][0])
+        prob_mlp = float(mlp_model.predict_proba(X)[:, 1][0])
 
     if model_name == 'xgboost':
         prob = prob_xgb
