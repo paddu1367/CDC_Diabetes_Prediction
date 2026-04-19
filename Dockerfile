@@ -2,9 +2,16 @@ FROM python:3.14-slim
 
 WORKDIR /app
 
+# Install dependencies first (cached layer)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copy app source
+COPY app.py .
+COPY templates/ templates/
+COPY static/ static/
+COPY models/ models/
 
-CMD ["python", "-c", "import pandas as pd; import matplotlib.pyplot as plt; import seaborn as sns; import numpy as np; print('All libraries loaded successfully')"]
+EXPOSE 5000
+
+CMD ["python", "app.py"]

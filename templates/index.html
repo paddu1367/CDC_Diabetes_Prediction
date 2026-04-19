@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CDC Diabetes Risk Predictor</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      color: #2d3748;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #2b6cb0, #2c7a7b);
+      color: white;
+      padding: 28px 40px;
+      text-align: center;
+    }
+    header h1 { font-size: 1.8rem; font-weight: 700; }
+    header p  { margin-top: 6px; opacity: 0.85; font-size: 0.95rem; }
+
+    .container {
+      max-width: 960px;
+      margin: 36px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 32px;
+      margin-bottom: 28px;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2b6cb0;
+      border-bottom: 2px solid #ebf4ff;
+      padding-bottom: 10px;
+      margin-bottom: 22px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 18px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .field input[type="number"],
+    .field select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid #cbd5e0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+      background: #f7fafc;
+    }
+    .field input[type="number"]:focus,
+    .field select:focus {
+      outline: none;
+      border-color: #2b6cb0;
+      background: white;
+    }
+
+    /* Toggle switch for binary fields */
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #cbd5e0;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      left: 3px; top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle input:checked + .slider { background: #2b6cb0; }
+    .toggle input:checked + .slider::before { transform: translateX(20px); }
+    .toggle-label { font-size: 0.9rem; color: #718096; }
+
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #2b6cb0, #2c7a7b);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .submit-btn:hover   { opacity: 0.92; }
+    .submit-btn:active  { transform: scale(0.98); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    #results { display: none; }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .model-card {
+      border-radius: 10px;
+      padding: 18px;
+      text-align: center;
+      border: 2px solid #e2e8f0;
+    }
+    .model-card.positive { border-color: #fc8181; background: #fff5f5; }
+    .model-card.negative { border-color: #68d391; background: #f0fff4; }
+
+    .model-card .model-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #718096;
+      margin-bottom: 8px;
+    }
+    .model-card .prob {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #2d3748;
+    }
+    .model-card .verdict {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .model-card.positive .verdict { color: #e53e3e; }
+    .model-card.negative .verdict { color: #38a169; }
+
+    .prob-bar-wrap { margin-top: 10px; }
+    .prob-bar-bg {
+      background: #e2e8f0;
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .prob-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.8s ease;
+    }
+    .positive .prob-bar-fill { background: #fc8181; }
+    .negative .prob-bar-fill { background: #68d391; }
+
+    .ensemble-banner {
+      border-radius: 10px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 600;
+    }
+    .ensemble-banner.positive { background: #fff5f5; border: 2px solid #fc8181; }
+    .ensemble-banner.negative { background: #f0fff4; border: 2px solid #68d391; }
+    .ensemble-banner .label   { font-size: 1rem; color: #4a5568; }
+    .ensemble-banner .value   { font-size: 1.5rem; font-weight: 800; }
+    .ensemble-banner.positive .value { color: #e53e3e; }
+    .ensemble-banner.negative .value { color: #38a169; }
+
+    .error-box {
+      background: #fff5f5;
+      border: 1.5px solid #fc8181;
+      border-radius: 8px;
+      padding: 14px 18px;
+      color: #c53030;
+      font-size: 0.9rem;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 3px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #a0aec0;
+      font-size: 0.82rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>CDC Diabetes Risk Predictor</h1>
+  <p>Enter patient health indicators to predict diabetes risk using ML models</p>
+</header>
+
+<div class="container">
+
+  <form id="predict-form">
+
+    <!-- Range / Numeric Features -->
+    <div class="card">
+      <h2>Health Measurements</h2>
+      <div class="grid">
+        <div class="field">
+          <label>BMI</label>
+          <input type="number" name="BMI" min="10" max="100" step="0.1" value="27.0" required/>
+        </div>
+        <div class="field">
+          <label>Age (1–13)</label>
+          <input type="number" name="Age" min="1" max="13" value="7" required/>
+        </div>
+        <div class="field">
+          <label>General Health (1–5)</label>
+          <input type="number" name="GenHlth" min="1" max="5" value="3" required/>
+        </div>
+        <div class="field">
+          <label>Mental Health Days (0–30)</label>
+          <input type="number" name="MentHlth" min="0" max="30" value="0" required/>
+        </div>
+        <div class="field">
+          <label>Physical Health Days (0–30)</label>
+          <input type="number" name="PhysHlth" min="0" max="30" value="0" required/>
+        </div>
+        <div class="field">
+          <label>Education (1–6)</label>
+          <input type="number" name="Education" min="1" max="6" value="5" required/>
+        </div>
+        <div class="field">
+          <label>Income (1–8)</label>
+          <input type="number" name="Income" min="1" max="8" value="5" required/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Binary Features -->
+    <div class="card">
+      <h2>Medical History</h2>
+      <div class="grid">
+        <div class="field">
+          <label>High Blood Pressure</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="HighBP" value="1"/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>High Cholesterol</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="HighChol" value="1"/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Cholesterol Check</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="CholCheck" value="1" checked/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Smoker</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="Smoker" value="1"/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stroke</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="Stroke" value="1"/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Heart Disease / Attack</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="HeartDiseaseorAttack" value="1"/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Physical Activity</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="PhysActivity" value="1" checked/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Eats Fruits</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="Fruits" value="1" checked/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Eats Vegetables</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="Veggies" value="1" checked/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Heavy Alcohol</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="HvyAlcoholConsump" value="1"/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Any Healthcare</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="AnyHealthcare" value="1" checked/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>No Doc (Cost)</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="NoDocbcCost" value="1"/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Difficulty Walking</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="DiffWalk" value="1"/><span class="slider"></span></label>
+            <span class="toggle-label">Yes / No</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Sex (Male = 1)</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" name="Sex" value="1"/><span class="slider"></span></label>
+            <span class="toggle-label">Male / Female</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submit-btn">Predict Diabetes Risk</button>
+  </form>
+
+  <!-- Results -->
+  <div id="results" class="card" style="margin-top:28px;">
+    <h2>Prediction Results</h2>
+    <div id="results-content"></div>
+  </div>
+
+</div>
+
+<footer>CDC Diabetes Health Indicators Dataset &mdash; For educational purposes only</footer>
+
+<script>
+  document.getElementById('predict-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Predicting...';
+
+    const form = e.target;
+    const data = {};
+
+    // Numeric fields
+    ['BMI','Age','GenHlth','MentHlth','PhysHlth','Education','Income'].forEach(name => {
+      data[name] = parseFloat(form.querySelector(`[name="${name}"]`).value);
+    });
+
+    // Binary fields (checkbox = 1 if checked, else 0)
+    ['HighBP','HighChol','CholCheck','Smoker','Stroke','HeartDiseaseorAttack',
+     'PhysActivity','Fruits','Veggies','HvyAlcoholConsump','AnyHealthcare',
+     'NoDocbcCost','DiffWalk','Sex'].forEach(name => {
+      data[name] = form.querySelector(`[name="${name}"]`).checked ? 1 : 0;
+    });
+
+    try {
+      const res  = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+
+      if (json.error) {
+        showError(json.error);
+      } else {
+        showResults(json);
+      }
+    } catch (err) {
+      showError('Could not reach the server. Is Flask running?');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = 'Predict Diabetes Risk';
+  });
+
+  function showError(msg) {
+    const el = document.getElementById('results');
+    el.style.display = 'block';
+    document.getElementById('results-content').innerHTML =
+      `<div class="error-box">${msg}</div>`;
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function showResults(json) {
+    const modelNames = {
+      xgboost: 'XGBoost',
+      catboost: 'CatBoost',
+      neural_network: 'Neural Network',
+      ensemble: 'Ensemble'
+    };
+
+    const ensemble = json.ensemble;
+    const isPositive = ensemble.prediction === 1;
+    const ensembleClass = isPositive ? 'positive' : 'negative';
+    const ensembleVerdict = isPositive ? '⚠️ High Risk' : '✅ Low Risk';
+
+    let modelsHtml = '';
+    ['xgboost', 'catboost', 'neural_network'].forEach(key => {
+      const m = json[key];
+      const cls = m.prediction === 1 ? 'positive' : 'negative';
+      const pct = (m.probability * 100).toFixed(1);
+      modelsHtml += `
+        <div class="model-card ${cls}">
+          <div class="model-name">${modelNames[key]}</div>
+          <div class="prob">${pct}%</div>
+          <div class="verdict">${m.prediction === 1 ? '⚠️ At Risk' : '✅ Low Risk'}</div>
+          <div class="prob-bar-wrap">
+            <div class="prob-bar-bg">
+              <div class="prob-bar-fill" style="width:${pct}%"></div>
+            </div>
+          </div>
+        </div>`;
+    });
+
+    const ensemblePct = (ensemble.probability * 100).toFixed(1);
+
+    document.getElementById('results-content').innerHTML = `
+      <div class="model-grid">${modelsHtml}</div>
+      <div class="ensemble-banner ${ensembleClass}">
+        <div>
+          <div class="label">Ensemble Prediction (Weighted Average)</div>
+          <div style="font-size:0.85rem;color:#718096;margin-top:2px;">XGBoost 35% · CatBoost 40% · Neural Network 25%</div>
+        </div>
+        <div class="value">${ensembleVerdict} &nbsp; ${ensemblePct}%</div>
+      </div>`;
+
+    const el = document.getElementById('results');
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>

@@ -5,3 +5,8 @@ numpy
 ucimlrepo
 xgboost
 scikit-learn
+catboost
+imbalanced-learn
+optuna
+flask
+gunicorn
