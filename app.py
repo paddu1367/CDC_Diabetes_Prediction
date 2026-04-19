@@ -26,6 +26,14 @@ RANGE_FEATURES = [
     'BMI', 'MentHlth', 'PhysHlth', 'Age', 'Education', 'Income', 'GenHlth'
 ]
 
+FEATURE_ORDER = [
+    'HighBP', 'HighChol', 'CholCheck', 'BMI', 'Smoker', 'Stroke',
+    'HeartDiseaseorAttack', 'PhysActivity', 'Fruits', 'Veggies',
+    'HvyAlcoholConsump', 'AnyHealthcare', 'NoDocbcCost', 'GenHlth',
+    'MentHlth', 'PhysHlth', 'DiffWalk', 'Sex', 'Age', 'Education', 'Income',
+    'BMI_Category', 'BMI_HighBP', 'Age_GenHlth', 'PhysAct_BMI'
+]
+
 def engineer_features(data: dict) -> pd.DataFrame:
     df = pd.DataFrame([data])
     df['BMI_Category'] = pd.cut(df['BMI'], bins=[0, 18.5, 25, 30, 100],
@@ -33,16 +41,16 @@ def engineer_features(data: dict) -> pd.DataFrame:
     df['BMI_HighBP']  = df['BMI'] * df['HighBP']
     df['Age_GenHlth'] = df['Age'] * df['GenHlth']
     df['PhysAct_BMI'] = df['PhysActivity'] * df['BMI']
-    return df
+    return df[FEATURE_ORDER]
 
 def predict(df: pd.DataFrame, model_name: str) -> dict:
-    X = preprocessor.transform(df)
     if model_name in ('xgboost', 'ensemble'):
-        prob_xgb = float(xgb_model.predict_proba(X)[:, 1][0])
+        prob_xgb = float(xgb_model.predict_proba(df)[:, 1][0])
     if model_name in ('catboost', 'ensemble'):
-        prob_cat = float(catboost_model.predict_proba(X)[:, 1][0])
+        prob_cat = float(catboost_model.predict_proba(df)[:, 1][0])
     if model_name in ('neural_network', 'ensemble'):
-        prob_mlp = float(mlp_model.predict_proba(X)[:, 1][0])
+        X_scaled = preprocessor.transform(df)
+        prob_mlp = float(mlp_model.predict_proba(X_scaled)[:, 1][0])
 
     if model_name == 'xgboost':
         prob = prob_xgb

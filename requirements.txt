@@ -10,3 +10,4 @@ imbalanced-learn
 optuna
 flask
 gunicorn
+pytest
